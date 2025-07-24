@@ -1,13 +1,5 @@
 // Logger Utility
 const winston = require('winston');
-const path = require('path');
-
-// Create logs directory if it doesn't exist
-const fs = require('fs');
-const logsDir = path.join(__dirname, '../logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
-}
 
 // Define log format
 const logFormat = winston.format.combine(
@@ -18,7 +10,7 @@ const logFormat = winston.format.combine(
   winston.format.json()
 );
 
-// Define console format for development
+// Define console format
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({
@@ -29,35 +21,18 @@ const consoleFormat = winston.format.combine(
   })
 );
 
-// Create logger instance
+// Create logger instance - only use console transport for serverless
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
-  format: logFormat,
+  format: process.env.NODE_ENV === 'production' ? logFormat : consoleFormat,
   defaultMeta: { service: 'restaurant-api' },
   transports: [
-    // Write all logs with level 'error' and below to error.log
-    new winston.transports.File({
-      filename: path.join(logsDir, 'error.log'),
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-    
-    // Write all logs with level 'info' and below to combined.log
-    new winston.transports.File({
-      filename: path.join(logsDir, 'combined.log'),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
+    // Only use console transport for serverless environments like Vercel
+    new winston.transports.Console({
+      format: process.env.NODE_ENV === 'production' ? logFormat : consoleFormat
+    })
   ],
 });
-
-// Add console transport for development
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: consoleFormat
-  }));
-}
 
 // Request logging middleware
 const requestLogger = (req, res, next) => {
