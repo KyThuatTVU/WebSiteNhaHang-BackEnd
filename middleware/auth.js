@@ -15,6 +15,10 @@ const dbConfig = {
   connectionLimit: 10,
   queueLimit: 0,
   connectTimeout: 10000,
+  // SSL configuration for secure connections
+  ssl: {
+    rejectUnauthorized: false // Allow self-signed certificates for cloud MySQL services
+  },
   // Removed invalid options: acquireTimeout, timeout, reconnect
   charset: 'utf8mb4',
   timezone: '+07:00'

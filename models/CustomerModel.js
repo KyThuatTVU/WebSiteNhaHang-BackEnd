@@ -8,6 +8,10 @@ const dbConfig = {
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'restaurant_db',
+    // SSL configuration for secure connections
+    ssl: {
+        rejectUnauthorized: false // Allow self-signed certificates for cloud MySQL services
+    },
     charset: 'utf8mb4'
 };
 
